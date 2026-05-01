@@ -143,7 +143,7 @@
         <field name="name">txr.db.backup.list</field>
         <field name="model">txr.db.backup</field>
         <field name="arch" type="xml">
-            <list string="Backup Configurations">
+            <tree string="Backup Configurations">
                 <field name="name"/>
                 <field name="database_name"/>
                 <field name="storage_type"/>
@@ -156,7 +156,7 @@
                        decoration-warning="last_state == 'warning'"
                        optional="show"/>
                 <field name="active" column_invisible="1"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -164,7 +164,7 @@
     <record id="txr_db_backup_action" model="ir.actions.act_window">
         <field name="name">Backup Configurations</field>
         <field name="res_model">txr.db.backup</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Menu items: Settings → Technical → DB Backup -->

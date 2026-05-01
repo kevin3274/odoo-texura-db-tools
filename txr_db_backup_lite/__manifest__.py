@@ -1,6 +1,6 @@
 {
     "name": "Texura DB Backup Lite",
-    "version": "18.0.1.0.0",
+    "version": "17.0.1.0.0",
     "category": "Technical",
     "summary": "Zero-dependency database backup with verification",
     "author": "Texura",
