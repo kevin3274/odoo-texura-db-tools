@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texura DB Backup Lite</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; color: #333; }
+        .hero { background: linear-gradient(135deg, #1565C0 0%, #1976D2 100%); color: white; padding: 48px 32px; text-align: center; }
+        .hero h1 { font-size: 2em; margin: 0 0 12px; }
+        .hero p { font-size: 1.1em; margin: 0; opacity: 0.9; }
+        .badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 14px; font-size: 0.85em; margin: 8px 4px 0; }
+        .section { max-width: 800px; margin: 0 auto; padding: 36px 24px; }
+        h2 { color: #1565C0; border-bottom: 2px solid #E3F2FD; padding-bottom: 8px; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin: 24px 0; }
+        .feature-card { border: 1px solid #E3F2FD; border-radius: 8px; padding: 20px; background: #F8FBFF; }
+        .feature-card h3 { color: #1565C0; margin: 0 0 8px; font-size: 1em; }
+        .feature-card p { margin: 0; font-size: 0.9em; color: #555; line-height: 1.5; }
+        .icon { font-size: 1.5em; margin-bottom: 8px; }
+        .pro-box { background: linear-gradient(135deg, #FF6F00, #F57C00); color: white; border-radius: 8px; padding: 24px; margin: 32px 0; }
+        .pro-box h2 { color: white; border-color: rgba(255,255,255,0.3); }
+        .pro-box ul { margin: 12px 0; padding-left: 20px; }
+        .pro-box li { margin: 6px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        th { background: #1565C0; color: white; padding: 10px 14px; text-align: left; }
+        td { padding: 10px 14px; border-bottom: 1px solid #E3F2FD; }
+        tr:nth-child(even) td { background: #F8FBFF; }
+        .check { color: #2E7D32; }
+        .dash { color: #bbb; }
+        footer { text-align: center; padding: 24px; color: #888; font-size: 0.85em; background: #F5F5F5; border-top: 1px solid #E0E0E0; }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>Texura DB Backup Lite</h1>
+    <p>Zero-dependency database backup with built-in verification for Odoo 19</p>
+    <div>
+        <span class="badge">Zero Dependencies</span>
+        <span class="badge">Backup Verification</span>
+        <span class="badge">Free &amp; Open Source</span>
+        <span class="badge">Odoo 19</span>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Why Texura DB Backup Lite?</h2>
+    <p>Most Odoo backup modules either require extra Python packages or don't verify what they save.
+       Texura DB Backup Lite uses only <strong>standard Odoo + system tools</strong> (pg_dump / sftp),
+       and automatically verifies every backup with SHA-256 integrity checks and pg_restore structure validation.</p>
+
+    <div class="features">
+        <div class="feature-card">
+            <div class="icon">📦</div>
+            <h3>Zero Dependencies</h3>
+            <p>No pip install required. Uses pg_dump and the OpenSSH sftp binary already on your server.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">✅</div>
+            <h3>2-Level Verification</h3>
+            <p>L1: SHA-256 file integrity check. L2: pg_restore structure scan — confirms the dump is actually restorable.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🕐</div>
+            <h3>Flexible Scheduling</h3>
+            <p>Configure backup frequency in hours, days, weeks, or months. Each config gets its own Odoo cron job.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">💾</div>
+            <h3>Local &amp; SFTP Storage</h3>
+            <p>Save backups locally or upload to any SSH server. Supports both key-file and inline private-key authentication.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🗂️</div>
+            <h3>Smart Retention</h3>
+            <p>Keep the last N backups or backups from the last N days. Retention only removes successful backups — errors are preserved for audit.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🔔</div>
+            <h3>Email Alerts</h3>
+            <p>Get notified on failure (and optionally on success) with rich HTML emails sent to your chosen contacts.</p>
+        </div>
+    </div>
+
+    <h2>Feature Comparison</h2>
+    <table>
+        <tr><th>Feature</th><th>Lite (Free)</th><th>Pro (Paid)</th></tr>
+        <tr><td>Local storage</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>SFTP storage</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>L1 SHA-256 verification</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>L2 pg_restore structure check</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Flexible scheduling</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Email notifications</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Count &amp; days retention</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>GZip compression</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>S3 / Google Cloud / Azure storage</td><td class="dash">—</td><td class="check">✓</td></tr>
+        <tr><td>L3 full test-restore verification</td><td class="dash">—</td><td class="check">✓</td></tr>
+        <tr><td>One-click restore from UI</td><td class="dash">—</td><td class="check">✓</td></tr>
+        <tr><td>Backup encryption (GPG)</td><td class="dash">—</td><td class="check">✓</td></tr>
+    </table>
+
+    <div class="pro-box">
+        <h2>Upgrade to Pro</h2>
+        <p>Need cloud storage, full restore testing, or one-click restore from the Odoo UI?</p>
+        <ul>
+            <li>Upload to <strong>Amazon S3, Google Cloud Storage, or Azure Blob</strong></li>
+            <li><strong>L3 full test-restore</strong> — actually restores to a sandbox and checks data integrity</li>
+            <li><strong>One-click restore</strong> directly from the backup log in Odoo</li>
+            <li><strong>GPG encryption</strong> for backups at rest</li>
+            <li>Priority support from the Texura team</li>
+        </ul>
+        <p>Visit <strong>apps.odoo.com</strong> and search for "Texura DB Backup Pro" to learn more.</p>
+    </div>
+
+    <h2>Installation</h2>
+    <p>This module depends only on <strong>base</strong> and <strong>mail</strong> — both included in every Odoo installation. No extra modules required.</p>
+    <p>System requirements:</p>
+    <ul>
+        <li><code>pg_dump</code> — PostgreSQL client tools (usually already installed with Odoo)</li>
+        <li><code>sftp</code> — Only needed if using SFTP storage (install with <code>apt install openssh-client</code>)</li>
+    </ul>
+
+    <h2>Configuration</h2>
+    <ol>
+        <li>Go to <strong>Settings → Technical → Database Backup</strong></li>
+        <li>Click <strong>New</strong> and fill in the backup name and schedule</li>
+        <li>Choose <strong>Local</strong> or <strong>SFTP</strong> storage</li>
+        <li>Set your retention policy (keep last N backups or last N days)</li>
+        <li>Optionally add notification recipients</li>
+        <li>Save — a cron job is created automatically</li>
+    </ol>
+</div>
+
+<footer>
+    Texura DB Backup Lite &mdash; &copy; Texura &mdash; Licensed under LGPL-3<br>
+    <a href="https://apps.odoo.com/apps/modules/browse?author=Texura">More modules from Texura</a>
+</footer>
+
+</body>
+</html>

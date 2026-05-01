@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="txr_db_backup_log_view_form" model="ir.ui.view">
+        <field name="name">txr.db.backup.log.form</field>
+        <field name="model">txr.db.backup.log</field>
+        <field name="arch" type="xml">
+            <form string="Backup Log">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="backup_id" string="Backup Config"/>
+                            <field name="state"/>
+                            <field name="phase" string="Current Phase"/>
+                        </group>
+                        <group>
+                            <field name="started_at"/>
+                            <field name="finished_at"/>
+                            <field name="duration" string="Duration (s)"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="file_size" string="File Size (bytes)"/>
+                            <field name="sha256" string="SHA256 Hash"/>
+                            <field name="pg_dump_version"/>
+                            <field name="storage_type" string="Storage Type (snapshot)"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Verification" name="verification">
+                            <group>
+                                <group>
+                                    <field name="verify_l1" string="L1: File Integrity"/>
+                                    <field name="verify_l2" string="L2: Format Validity"/>
+                                    <field name="verify_l2_toc" string="TOC Entries"/>
+                                    <field name="verify_l3" string="L3: Full Restore (Pro)"/>
+                                    <field name="verify_l3_note"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Errors" name="errors" invisible="not error_message">
+                            <group>
+                                <field name="error_message"/>
+                                <field name="error_traceback"/>
+                            </group>
+                        </page>
+
+                        <page string="Restore" name="restore" invisible="state != 'success'">
+                            <field name="restore_instructions" readonly="1" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="txr_db_backup_log_view_list" model="ir.ui.view">
+        <field name="name">txr.db.backup.log.list</field>
+        <field name="model">txr.db.backup.log</field>
+        <field name="arch" type="xml">
+            <list string="Backup Logs"
+                  decoration-danger="state == 'failed'"
+                  decoration-warning="state == 'warning'"
+                  decoration-success="state == 'success'">
+                <field name="backup_id" string="Backup Config"/>
+                <field name="state" widget="badge" decoration-danger="state == 'failed'" decoration-warning="state == 'warning'" decoration-success="state == 'success'"/>
+                <field name="phase" string="Current Phase"/>
+                <field name="started_at"/>
+                <field name="duration" string="Duration (s)"/>
+                <field name="file_size" string="File Size (bytes)"/>
+                <field name="file_exists" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="txr_db_backup_log_view_search" model="ir.ui.view">
+        <field name="name">txr.db.backup.log.search</field>
+        <field name="model">txr.db.backup.log</field>
+        <field name="arch" type="xml">
+            <search string="Backup Logs">
+                <field name="backup_id"/>
+                <field name="state"/>
+                <filter name="success" string="Success" domain="[('state', '=', 'success')]"/>
+                <filter name="failed" string="Failed" domain="[('state', '=', 'failed')]"/>
+                <filter name="warning" string="Warning" domain="[('state', '=', 'warning')]"/>
+                <separator/>
+                <filter name="last_7_days" string="Last 7 Days"
+                        domain="[('started_at', '>=', (context_today() - datetime.timedelta(days=7)).strftime('%%Y-%%m-%%d'))]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="txr_db_backup_log_action" model="ir.actions.act_window">
+        <field name="name">Backup Logs</field>
+        <field name="res_model">txr.db.backup.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

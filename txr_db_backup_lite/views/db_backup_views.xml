@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="txr_db_backup_view_form" model="ir.ui.view">
+        <field name="name">txr.db.backup.form</field>
+        <field name="model">txr.db.backup</field>
+        <field name="arch" type="xml">
+            <form string="Backup Configuration">
+                <header>
+                    <button name="action_run_now" type="object" string="Run Now"
+                            class="oe_highlight"
+                            confirm="Backup may take several minutes. Continue?"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="action"
+                                name="%(txr_db_backup_log_action)d"
+                                icon="fa-history"
+                                context="{'search_default_backup_id': id}">
+                            <field name="backup_count" string="Backups" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="database_name"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="storage_type"/>
+                            <field name="backup_format"/>
+                            <field name="compress" string="GZip Compression" invisible="backup_format != 'dump'"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-warning" role="alert" invisible="backup_format != 'dump'">
+                        Database only: attachments and images will not be included.
+                        Use this only when filestore is backed up separately.
+                    </div>
+
+                    <group string="Status" name="status_info">
+                        <group>
+                            <field name="next_execution" readonly="1"/>
+                            <field name="last_backup_time" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="last_state" readonly="1" widget="badge"
+                                   decoration-success="last_state == 'success'"
+                                   decoration-danger="last_state == 'failed'"
+                                   decoration-warning="last_state == 'warning'"/>
+                            <field name="last_file_size" readonly="1"/>
+                            <field name="last_verify_l1" readonly="1"/>
+                            <field name="last_verify_l2" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Schedule" name="schedule">
+                            <group>
+                                <group>
+                                    <field name="interval_number" string="Backup Every"/>
+                                    <field name="interval_type"/>
+                                </group>
+                                <group>
+                                    <field name="execution_time" widget="float_time" string="Run At"/>
+                                    <field name="tz"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Storage" name="storage">
+                            <!-- Local Storage -->
+                            <group string="Local Storage" invisible="storage_type != 'local'">
+                                <field name="local_path" placeholder="/opt/backups or ~/backups"
+                                       required="storage_type == 'local'"/>
+                            </group>
+                            <group string="Directory Status" invisible="storage_type != 'local' or not local_path">
+                                <field name="path_status" readonly="1"/>
+                                <field name="disk_total" readonly="1" string="Disk Total (GB)"/>
+                                <field name="disk_free" readonly="1" string="Disk Free (GB)"/>
+                                <field name="backup_total_size" readonly="1" string="Backup Size (MB)"/>
+                                <field name="backup_file_count" readonly="1" string="Backup Count"/>
+                            </group>
+                            <!-- SFTP 说明 -->
+                            <div class="alert alert-info" role="alert" invisible="storage_type != 'sftp'">
+                                This version uses SSH key authentication (security best practice).
+                                For password authentication, upgrade to Pro.
+                            </div>
+                            <!-- SFTP Storage -->
+                            <group string="SFTP Storage" invisible="storage_type != 'sftp'">
+                                <group>
+                                    <field name="sftp_host" required="storage_type == 'sftp'"/>
+                                    <field name="sftp_port" required="storage_type == 'sftp'"/>
+                                    <field name="sftp_username" required="storage_type == 'sftp'"/>
+                                    <field name="sftp_remote_path" placeholder="~/backups or /opt/backups"/>
+                                </group>
+                                <group string="SSH Key">
+                                    <div colspan="2" class="text-muted small mb-2">
+                                        Leave both empty to use the system default key (~/.ssh/id_rsa).
+                                        Or fill one: key content takes priority over file path.
+                                    </div>
+                                    <field name="sftp_key_path" placeholder="/home/odoo/.ssh/id_rsa"/>
+                                    <field name="sftp_private_key" placeholder="Saved. Leave empty to keep current key."/>
+                                </group>
+                                <div>
+                                    <button name="action_test_sftp_connection" type="object"
+                                            string="Test Connection" class="btn-secondary"
+                                            icon="fa-plug"
+                                            invisible="not sftp_host or not sftp_username"/>
+                                </div>
+                            </group>
+                        </page>
+
+                        <page string="Retention" name="retention">
+                            <group>
+                                <group>
+                                    <field name="retention_count" string="Keep Last N Backups"/>
+                                    <field name="retention_days" string="Keep Backups For N Days"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Notifications" name="notifications">
+                            <group>
+                                <group>
+                                    <field name="notify_success"/>
+                                    <field name="notify_failure"/>
+                                </group>
+                                <group>
+                                    <field name="notify_partner_ids" widget="many2many_tags" string="Notification Recipients"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="txr_db_backup_view_list" model="ir.ui.view">
+        <field name="name">txr.db.backup.list</field>
+        <field name="model">txr.db.backup</field>
+        <field name="arch" type="xml">
+            <list string="Backup Configurations">
+                <field name="name"/>
+                <field name="database_name"/>
+                <field name="storage_type"/>
+                <field name="interval_number"/>
+                <field name="interval_type"/>
+                <field name="next_execution"/>
+                <field name="last_state" widget="badge"
+                       decoration-success="last_state == 'success'"
+                       decoration-danger="last_state == 'failed'"
+                       decoration-warning="last_state == 'warning'"
+                       optional="show"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="txr_db_backup_action" model="ir.actions.act_window">
+        <field name="name">Backup Configurations</field>
+        <field name="res_model">txr.db.backup</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu items: Settings → Technical → DB Backup -->
+    <menuitem id="txr_db_backup_menu_root"
+              name="DB Backup"
+              parent="base.menu_custom"
+              sequence="90"/>
+    <menuitem id="txr_db_backup_menu_config"
+              name="Configurations"
+              parent="txr_db_backup_menu_root"
+              action="txr_db_backup_action"
+              sequence="10"/>
+    <menuitem id="txr_db_backup_menu_log"
+              name="Backup Logs"
+              parent="txr_db_backup_menu_root"
+              action="txr_db_backup_log_action"
+              sequence="20"/>
+</odoo>
