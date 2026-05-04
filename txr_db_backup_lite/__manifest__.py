@@ -4,7 +4,7 @@
     "category": "Technical",
     "summary": "Zero-dependency database backup with verification",
     "author": "Texura",
-    "website": "https://apps.odoo.com/apps/modules/browse?author=Texura",
+    "website": "",
     "license": "LGPL-3",
     "depends": ["base", "mail"],
     "data": [
@@ -13,7 +13,7 @@
         "views/db_backup_views.xml",
     ],
     "support": "kevin@loyal-info.com",
-    "images": ["images/main_screenshot.png", "images/logs_screenshot.png", "images/sftp_screenshot.png"],
+    "images": ["static/description/screenshot_config.png", "static/description/screenshot_sftp.png", "static/description/screenshot_logs.png"],
     "installable": True,
     "auto_install": False,
 }

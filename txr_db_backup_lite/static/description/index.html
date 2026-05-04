@@ -27,6 +27,8 @@
         tr:nth-child(even) td { background: #F8FBFF; }
         .check { color: #2E7D32; }
         .dash { color: #bbb; }
+        .screenshot { width: 100%; border-radius: 8px; border: 1px solid #E3F2FD; margin: 20px 0 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); display: block; }
+        .screenshot-caption { text-align: center; color: #888; font-size: 0.85em; margin: 0 0 28px; }
         footer { text-align: center; padding: 24px; color: #888; font-size: 0.85em; background: #F5F5F5; border-top: 1px solid #E0E0E0; }
     </style>
 </head>
@@ -82,6 +84,15 @@
         </div>
     </div>
 
+    <h2>See It in Action</h2>
+    <p>Clean, native Odoo interface — no external dashboards, no new apps to learn.</p>
+
+    <img src="screenshot_config.png" alt="Backup configuration form showing schedule, storage type, and verification status" class="screenshot">
+    <p class="screenshot-caption">Backup configuration — name, schedule, storage type, and live verification status (L1 / L2) on one screen</p>
+
+    <img src="screenshot_sftp.png" alt="SFTP storage configuration with SSH key authentication" class="screenshot">
+    <p class="screenshot-caption">SFTP setup — enter host, port, path, and SSH key; hit Test Connection before saving</p>
+
     <h2>Feature Comparison</h2>
     <table>
         <tr><th>Feature</th><th>Lite (Free)</th><th>Pro (Paid)</th></tr>
@@ -96,7 +107,7 @@
         <tr><td>S3 / Google Cloud / Azure storage</td><td class="dash">—</td><td class="check">✓</td></tr>
         <tr><td>L3 full test-restore verification</td><td class="dash">—</td><td class="check">✓</td></tr>
         <tr><td>One-click restore from UI</td><td class="dash">—</td><td class="check">✓</td></tr>
-        <tr><td>Backup encryption (GPG)</td><td class="dash">—</td><td class="check">✓</td></tr>
+        <tr><td>Backup encryption (AES-256-GCM)</td><td class="dash">—</td><td class="check">✓</td></tr>
     </table>
 
     <div class="pro-box">
@@ -106,7 +117,7 @@
             <li>Upload to <strong>Amazon S3, Google Cloud Storage, or Azure Blob</strong></li>
             <li><strong>L3 full test-restore</strong> — actually restores to a sandbox and checks data integrity</li>
             <li><strong>One-click restore</strong> directly from the backup log in Odoo</li>
-            <li><strong>GPG encryption</strong> for backups at rest</li>
+            <li><strong>AES-256-GCM encryption</strong> for backups at rest</li>
             <li>Priority support from the Texura team</li>
         </ul>
         <p><strong>Texura DB Backup Pro</strong> is under active development. Follow <strong>Texura</strong> on apps.odoo.com to be notified when it launches.</p>
@@ -129,6 +140,11 @@
         <li>Optionally add notification recipients</li>
         <li>Save — a cron job is created automatically</li>
     </ol>
+
+    <p>Once running, every execution is logged with its state, file size, and verification result:</p>
+
+    <img src="screenshot_logs.png" alt="Backup log list showing all runs with state, file size, and verification results" class="screenshot">
+    <p class="screenshot-caption">Backup log — every run recorded with duration, file size, L1/L2 pass/fail, and file-existence check</p>
 </div>
 
 <footer>

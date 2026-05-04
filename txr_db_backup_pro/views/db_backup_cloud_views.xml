@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="txr_db_backup_cloud_view_form" model="ir.ui.view">
+        <field name="name">txr.db.backup.cloud.form</field>
+        <field name="model">txr.db.backup.cloud</field>
+        <field name="arch" type="xml">
+            <form string="Cloud Remote">
+                <header>
+                    <button name="action_test_connection" type="object" string="Test Connection"
+                            class="btn-secondary" icon="fa-plug"
+                            invisible="not name or not rclone_type"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="my-s3-backups"/>
+                            <field name="rclone_type"/>
+                        </group>
+                    </group>
+
+                    <group string="Amazon S3 / Compatible" invisible="rclone_type != 's3'">
+                        <group>
+                            <field name="s3_provider"/>
+                            <field name="s3_bucket" required="rclone_type == 's3'"/>
+                            <field name="s3_region"/>
+                            <field name="s3_endpoint" placeholder="(blank for AWS, e.g. https://s3.us-east-1.amazonaws.com or your MinIO URL)"/>
+                        </group>
+                        <group>
+                            <field name="s3_access_key" required="rclone_type == 's3'"/>
+                            <field name="s3_secret_key" password="True" required="rclone_type == 's3'"/>
+                        </group>
+                    </group>
+
+                    <group string="Google Cloud Storage" invisible="rclone_type != 'gcs'">
+                        <field name="gcs_bucket" required="rclone_type == 'gcs'"/>
+                        <field name="gcs_service_account_json" widget="text" password="True"
+                               required="rclone_type == 'gcs'"
+                               placeholder="Paste full service account JSON here"/>
+                    </group>
+
+                    <group string="Azure Blob Storage" invisible="rclone_type != 'azure'">
+                        <field name="azure_account" required="rclone_type == 'azure'"/>
+                        <field name="azure_key" password="True" required="rclone_type == 'azure'"/>
+                        <field name="azure_container" required="rclone_type == 'azure'"/>
+                    </group>
+
+                    <group string="Backblaze B2" invisible="rclone_type != 'b2'">
+                        <field name="b2_account" required="rclone_type == 'b2'"/>
+                        <field name="b2_key" password="True" required="rclone_type == 'b2'"/>
+                        <field name="b2_bucket" required="rclone_type == 'b2'"/>
+                    </group>
+
+                    <group string="Nextcloud / WebDAV" invisible="rclone_type != 'webdav'">
+                        <field name="webdav_vendor"/>
+                        <field name="webdav_url" required="rclone_type == 'webdav'"/>
+                        <field name="webdav_username" required="rclone_type == 'webdav'"/>
+                        <field name="webdav_password" password="True" required="rclone_type == 'webdav'"/>
+                    </group>
+
+                    <group string="Custom rclone Config" invisible="rclone_type != 'custom'">
+                        <field name="rclone_config_raw" widget="ace" required="rclone_type == 'custom'"
+                               placeholder="[remote-name]&#10;type = drive&#10;..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="txr_db_backup_cloud_view_list" model="ir.ui.view">
+        <field name="name">txr.db.backup.cloud.list</field>
+        <field name="model">txr.db.backup.cloud</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="rclone_type"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="txr_db_backup_cloud_view_search" model="ir.ui.view">
+        <field name="name">txr.db.backup.cloud.search</field>
+        <field name="model">txr.db.backup.cloud</field>
+        <field name="arch" type="xml">
+            <search string="Cloud Remotes">
+                <field name="name"/>
+                <field name="rclone_type"/>
+                <filter name="s3" string="S3" domain="[('rclone_type', '=', 's3')]"/>
+                <filter name="gcs" string="GCS" domain="[('rclone_type', '=', 'gcs')]"/>
+                <filter name="azure" string="Azure" domain="[('rclone_type', '=', 'azure')]"/>
+                <filter name="b2" string="B2" domain="[('rclone_type', '=', 'b2')]"/>
+                <filter name="webdav" string="WebDAV" domain="[('rclone_type', '=', 'webdav')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="txr_db_backup_cloud_action" model="ir.actions.act_window">
+        <field name="name">Cloud Remotes</field>
+        <field name="res_model">txr.db.backup.cloud</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="txr_db_backup_cloud_menu"
+              name="Cloud Remotes"
+              parent="txr_db_backup_lite.txr_db_backup_menu_root"
+              action="txr_db_backup_cloud_action"
+              sequence="30"/>
+</odoo>

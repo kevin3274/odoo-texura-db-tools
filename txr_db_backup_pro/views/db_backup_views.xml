@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="txr_db_backup_view_form_pro" model="ir.ui.view">
+        <field name="name">txr.db.backup.form.pro</field>
+        <field name="model">txr.db.backup</field>
+        <field name="inherit_id" ref="txr_db_backup_lite.txr_db_backup_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Cloud Storage 字段追加到 Storage page（仅 rclone 时显示） -->
+            <xpath expr="//page[@name='storage']" position="inside">
+                <group string="Cloud Storage (rclone)" invisible="storage_type != 'rclone'">
+                    <field name="cloud_remote_id" required="storage_type == 'rclone'"/>
+                    <field name="cloud_path" placeholder="path/inside/remote/bucket"/>
+                </group>
+            </xpath>
+
+            <!-- 新增 Pro 标签页 -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Encryption" name="encryption">
+                    <group>
+                        <field name="encrypt_backup"/>
+                        <field name="encrypt_key" password="True" invisible="not encrypt_backup"/>
+                    </group>
+                    <div invisible="not encrypt_backup">
+                        <!-- First-time generation: no confirmation needed -->
+                        <button name="action_generate_key" type="object" string="Generate Key"
+                                class="btn-secondary" icon="fa-key"
+                                invisible="encrypt_key"/>
+                        <!-- Regeneration: requires explicit confirmation to prevent accidental overwrite -->
+                        <button name="action_generate_key" type="object" string="Regenerate Key"
+                                class="btn-warning" icon="fa-refresh"
+                                confirm="Generating a new key will make ALL existing encrypted backups unrecoverable without the old key. Are you sure?"
+                                invisible="not encrypt_key"/>
+                        <button name="action_export_key" type="object" string="Export Key to File"
+                                class="btn-secondary" icon="fa-download"
+                                invisible="not encrypt_key"/>
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not encrypt_backup or encrypt_key">
+                        Click "Generate New Key" to create an AES-256 key.
+                        <strong>Export and save the key offline</strong> — without it, encrypted backups cannot be restored.
+                    </div>
+                </page>
+
+                <page string="L3 Verification" name="l3_verification">
+                    <div class="alert alert-info">
+                        L3 actually restores the backup into a temp DB and verifies critical tables.
+                        Recommended weekly. Requires <code>createdb</code> permission.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="verify_l3_enabled"/>
+                            <field name="verify_l3_frequency" invisible="not verify_l3_enabled"/>
+                            <field name="verify_l3_last_run" readonly="1" invisible="not verify_l3_last_run"/>
+                        </group>
+                    </group>
+                    <group string="Maintenance Window" invisible="not verify_l3_enabled">
+                        <field name="verify_l3_window_enabled"/>
+                        <group invisible="not verify_l3_window_enabled">
+                            <field name="verify_l3_window_start" widget="float_time"/>
+                            <field name="verify_l3_window_end" widget="float_time"/>
+                        </group>
+                    </group>
+                    <group string="Resource Priority" invisible="not verify_l3_enabled">
+                        <field name="verify_l3_low_priority"/>
+                        <div colspan="2" class="text-muted small">
+                            When enabled: pg_restore runs with ionice -c 3 + nice -n 10
+                            (when available), reducing impact on production load.
+                        </div>
+                    </group>
+                </page>
+
+                <page string="Backup Strategy" name="backup_strategy">
+                    <!-- 推荐横幅 -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not recommended_strategy or recommended_strategy == backup_strategy">
+                        <strong>Recommended:</strong>
+                        <field name="strategy_recommendation_reason" readonly="1" nolabel="1" class="d-inline"/>
+                        <button name="action_use_recommended_strategy" type="object"
+                                string="Use Recommended" class="btn-warning btn-sm ms-2"/>
+                    </div>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="backup_strategy != 'streaming'">
+                        <strong>Streaming mode disables all verification (L1/L2/L3).</strong>
+                        Only use when temp disk space is critically limited.
+                    </div>
+
+                    <group>
+                        <field name="backup_strategy"/>
+                    </group>
+
+                    <!-- Instance Sizes -->
+                    <group string="Instance Sizes">
+                        <group>
+                            <field name="db_size_bytes" string="DB Size (bytes)" readonly="1"/>
+                            <field name="filestore_size_bytes" string="Filestore Size (bytes)" readonly="1"/>
+                            <field name="filestore_size_updated_at" readonly="1"/>
+                        </group>
+                        <group>
+                            <button name="action_refresh_filestore_size" type="object"
+                                    string="Refresh Filestore Size"
+                                    class="btn-secondary" icon="fa-refresh"/>
+                        </group>
+                    </group>
+
+                    <!-- Backup Estimate -->
+                    <group string="Backup Estimate">
+                        <field name="estimated_duration_label" readonly="1" string="Est. Duration"/>
+                    </group>
+
+                    <!-- Split / Streaming 字段 -->
+                    <group string="Split / Streaming Settings"
+                           invisible="backup_strategy not in ('split', 'streaming')">
+                        <group>
+                            <field name="filestore_sync_enabled" invisible="backup_strategy != 'split'"/>
+                            <field name="filestore_path" placeholder="(auto-detect from data_dir)"
+                                   invisible="backup_strategy != 'split'"/>
+                            <field name="filestore_cloud_remote_id"
+                                   invisible="backup_strategy != 'split' or not filestore_sync_enabled"/>
+                            <field name="filestore_cloud_path"
+                                   invisible="backup_strategy != 'split' or not filestore_sync_enabled"/>
+                        </group>
+                    </group>
+
+                    <!-- Pre-flight 磁盘检查 -->
+                    <group string="Pre-flight Disk Check">
+                        <field name="pre_backup_disk_check"/>
+                        <field name="pre_backup_disk_min_gb" invisible="not pre_backup_disk_check"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 给 list/kanban action 加 performance guard context，避免每行触发磁盘扫描 -->
+    <record id="txr_db_backup_lite.txr_db_backup_action" model="ir.actions.act_window">
+        <field name="context">{'skip_strategy_compute': True}</field>
+    </record>
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_txr_db_backup_cloud_admin,txr.db.backup.cloud admin,model_txr_db_backup_cloud,base.group_system,1,1,1,1
+access_txr_db_restore_job_admin,txr.db.restore.job admin,model_txr_db_restore_job,base.group_system,1,1,1,1
