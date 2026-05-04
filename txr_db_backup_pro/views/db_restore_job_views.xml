@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="txr_db_restore_job_view_form" model="ir.ui.view">
+        <field name="name">txr.db.restore.job.form</field>
+        <field name="model">txr.db.restore.job</field>
+        <field name="arch" type="xml">
+            <form string="Restore Database">
+                <header>
+                    <button name="action_submit" type="object"
+                            string="Start Restore" class="btn-primary"
+                            invisible="state != 'draft'"
+                            confirm="Restore will create or overwrite the target database. Continue?"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,pending,downloading,decrypting,restoring,done"/>
+                </header>
+                <sheet>
+                    <group string="Source Backup" invisible="not backup_log_id">
+                        <field name="backup_log_id" readonly="1"/>
+                        <field name="triggered_by_uid" readonly="1"/>
+                    </group>
+
+                    <group>
+                        <field name="target_db" required="state == 'draft'"
+                               placeholder="my_database_restored_20260503"/>
+                        <field name="copy_uuid"/>
+                    </group>
+
+                    <!-- 恢复到当前 DB 的安全警告（state=draft 时始终显示） -->
+                    <div class="alert alert-danger" role="alert" invisible="state != 'draft'">
+                        <strong>Warning:</strong> If <code>target_db</code> matches the currently running database,
+                        restore will be rejected. Use <code>/web/database/manager</code> to restore over the current database.
+                    </div>
+
+                    <group invisible="state == 'draft'">
+                        <group>
+                            <field name="started_at" readonly="1"/>
+                            <field name="finished_at" readonly="1"/>
+                            <field name="phase_detail" readonly="1" invisible="not phase_detail"/>
+                        </group>
+                    </group>
+
+                    <notebook invisible="state == 'draft'">
+                        <page string="Result" name="result" invisible="not result_message">
+                            <field name="result_message" readonly="1" nolabel="1"/>
+                        </page>
+                        <page string="Error Trace" name="trace" invisible="not error_traceback">
+                            <field name="error_traceback" readonly="1" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="txr_db_restore_job_view_list" model="ir.ui.view">
+        <field name="name">txr.db.restore.job.list</field>
+        <field name="model">txr.db.restore.job</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="backup_log_id"/>
+                <field name="target_db"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'failed'"
+                       decoration-warning="state in ('pending', 'downloading', 'decrypting', 'restoring')"/>
+                <field name="phase_detail" optional="show"/>
+                <field name="started_at"/>
+                <field name="finished_at"/>
+                <field name="triggered_by_uid" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="txr_db_restore_job_action" model="ir.actions.act_window">
+        <field name="name">Restore Jobs</field>
+        <field name="res_model">txr.db.restore.job</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="txr_db_restore_job_menu"
+              name="Restore Jobs"
+              parent="txr_db_backup_lite.txr_db_backup_menu_root"
+              action="txr_db_restore_job_action"
+              sequence="40"/>
+</odoo>

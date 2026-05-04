@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="txr_db_backup_log_view_form_pro" model="ir.ui.view">
+        <field name="name">txr.db.backup.log.form.pro</field>
+        <field name="model">txr.db.backup.log</field>
+        <field name="inherit_id" ref="txr_db_backup_lite.txr_db_backup_log_view_form"/>
+        <field name="arch" type="xml">
+            <!-- header 加 Restore 按钮（仅 success 状态显示） -->
+            <xpath expr="//header" position="inside">
+                <button name="action_start_restore" type="object" string="Restore from this backup"
+                        class="btn-primary" icon="fa-undo"
+                        invisible="state != 'success'"/>
+            </xpath>
+
+            <!-- sheet 顶部加 active restore banner -->
+            <xpath expr="//sheet" position="inside">
+                <div class="alert alert-info" role="alert" invisible="not has_active_restore_job">
+                    <strong>Restore in progress</strong>
+                    — see Restore Jobs tab for details.
+                </div>
+            </xpath>
+
+            <!-- notebook 追加 Pre-flight 和 Restore Jobs 标签页 -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Pre-flight Info" name="preflight"
+                      invisible="not preflight_info and not l3_preflight_info">
+                    <group>
+                        <field name="preflight_info" nolabel="1" readonly="1" string="Backup Pre-flight"
+                               invisible="not preflight_info"/>
+                    </group>
+                    <group>
+                        <field name="l3_preflight_info" nolabel="1" readonly="1" string="L3 Pre-flight"
+                               invisible="not l3_preflight_info"/>
+                    </group>
+                </page>
+                <page string="Restore Jobs" name="restore_jobs"
+                      invisible="restore_job_count == 0">
+                    <field name="restore_job_ids" readonly="1">
+                        <list>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == 'done'"
+                                   decoration-danger="state == 'failed'"
+                                   decoration-warning="state in ('pending', 'downloading', 'decrypting', 'restoring')"/>
+                            <field name="target_db"/>
+                            <field name="phase_detail"/>
+                            <field name="started_at"/>
+                            <field name="finished_at"/>
+                            <field name="triggered_by_uid"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

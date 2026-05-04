@@ -7,22 +7,17 @@ import shutil
 import subprocess
 import tempfile
 import traceback
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 from subprocess import TimeoutExpired as _SubprocessTimeoutExpired
 
 import pytz
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.date_utils import float_to_time
 from odoo.addons.base.models.res_partner import _tz_get
 
 _logger = logging.getLogger(__name__)
-
-
-def float_to_time(hours):
-    """odoo.tools.date_utils.float_to_time is v19+; inline for v17/v18."""
-    h, m = divmod(round(hours * 60), 60)
-    return time(int(h % 24), int(m))
 
 _CRITICAL_TABLES = frozenset(['res_company', 'res_users', 'res_partner', 'ir_model'])
 _MIN_TOC_ENTRIES = 100
@@ -387,7 +382,7 @@ class TxrDbBackup(models.Model):
         dump_path = os.path.join(tmp_dir, filename)
         with open(dump_path, 'wb') as f:
             if self.backup_format == 'zip':
-                dump_db(self.database_name, f, 'zip')
+                dump_db(self.database_name, f, 'zip', with_filestore=True)
             else:
                 dump_db(self.database_name, f, 'dump')
         return dump_path
