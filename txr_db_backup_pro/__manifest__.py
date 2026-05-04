@@ -1,6 +1,6 @@
 {
     "name": "Texura DB Backup Pro",
-    "version": 17.0.1.0.0",
+    "version": "17.0.1.0.0",
     "category": "Technical",
     "summary": "Cloud backup with AES-256 encryption, L3 restore verification & one-click restore",
     "description": """
